@@ -44,6 +44,9 @@
 
 #define MAX_AT_RESPONSE 0x1000
 
+/* property to control the delay (in seconds) to initialize RIL */
+#define RIL_DELAY_TIME "gsm.ril.delay"
+
 /* pathname returned from RIL_REQUEST_SETUP_DATA_CALL / RIL_REQUEST_SETUP_DEFAULT_PDP */
 #define PPP_TTY_PATH "ppp0"
 #define PPP_OPERSTATE_PATH "/sys/class/net/ppp0/operstate"
@@ -223,6 +226,7 @@ static char *sATBufferCur = NULL;
 static const struct timeval TIMEVAL_SIMPOLL = {1,0};
 static const struct timeval TIMEVAL_CALLSTATEPOLL = {0,500000};
 static const struct timeval TIMEVAL_0 = {0,0};
+static struct timeval TIMEVAL_DELAYINIT = {0,0}; // will be set according to property value
 
 #ifdef WORKAROUND_ERRONEOUS_ANSWER
 // Max number of times we'll try to repoll when we think
@@ -3194,6 +3198,8 @@ mainLoop(void *param)
 #endif
 #ifdef HUAWEI_MODEM
     struct termios new_termios, old_termios;
+    char delay_init[PROPERTY_VALUE_MAX];
+    int delay;
 #endif
 
     AT_DUMP("== ", "entering mainLoop()", -1 );
@@ -3287,7 +3293,21 @@ mainLoop(void *param)
             return 0;
         }
 
-        RIL_requestTimedCallback(initializeCallback, NULL, &TIMEVAL_0);
+        /* Some HUAWEI USB datacards (e.g. E180) bootup and attach to network a little bit slowly(e.g. 20s). 
+           Delay RIL init so that we can always get correct network status (i.e. +COPS?).
+           FIX ME: this should be removed in future. Service layer should be responsible to handle "late" attach.
+        */
+	property_get(RIL_DELAY_TIME, delay_init, "0");
+        delay = strtol(delay_init, NULL, 10);
+        if(delay > 120) {
+	    LOGW ("Should not delay RIL init too long (%d seconds). Please set %s properly", delay, RIL_DELAY_TIME);
+            delay = 0;
+        }
+        TIMEVAL_DELAYINIT.tv_sec = delay;
+
+        LOGD ("Will delay RIL initialization for %d seconds", TIMEVAL_DELAYINIT.tv_sec); 
+
+        RIL_requestTimedCallback(initializeCallback, NULL, &TIMEVAL_DELAYINIT);
 
         // Give initializeCallback a chance to dispatched, since
         // we don't presently have a cancellation mechanism
