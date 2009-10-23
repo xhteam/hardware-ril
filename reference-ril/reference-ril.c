@@ -1323,7 +1323,7 @@ static void requestRegistrationState(int request, void *data,
 
     err = at_send_command_singleline(cmd, prefix, &p_response);
 
-    if (err != 0) goto error;
+    if (err != 0 || p_response->success == 0) goto error;
 
     line = p_response->p_intermediates->line;
 
