@@ -1552,6 +1552,33 @@ error:
     at_response_free(p_response);
 }
 
+static void requestDeactivateDataCall(void *data, size_t datalen, RIL_Token t)
+{
+    const char *cid;
+    char *cmd;
+    int err;
+
+    cid = ((const char **)data)[0];
+    LOGD("requesting deactivating data connection with CID '%s'", cid);
+
+    /* Stop PPPd firstly */
+    LOGD("Stopping PPPD");
+    property_set("ctl.stop", SERVICE_PPPD_GPRS);
+
+    /* Dactivate PDP Context */
+    asprintf(&cmd, "AT+CGACT=0,%s", cid);
+    err = at_send_command(cmd, NULL);
+
+    if (err < 0 ) {
+	LOGW("Dactivate PDP failure");
+    }
+
+    RIL_onRequestComplete(t, RIL_E_SUCCESS, NULL, 0);
+    free(cmd);
+
+    return;
+}
+
 static void requestSetupDataCall(void *data, size_t datalen, RIL_Token t)
 {
     const char *apn;
@@ -2129,6 +2156,9 @@ onRequest (int request, void *data, size_t datalen, RIL_Token t)
             break;
         case RIL_REQUEST_SETUP_DATA_CALL:
             requestSetupDataCall(data, datalen, t);
+            break;
+        case RIL_REQUEST_DEACTIVATE_DATA_CALL:
+            requestDeactivateDataCall(data, datalen, t);
             break;
         case RIL_REQUEST_SMS_ACKNOWLEDGE:
             requestSMSAcknowledge(data, datalen, t);
