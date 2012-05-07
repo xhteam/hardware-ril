@@ -1945,6 +1945,31 @@ static int responseRilSignalStrength(Parcel &p,
                 p_cur->LTE_SignalStrength.cqi);
         closeResponse;
 
+    } else if (responselen % sizeof (int) == 0) {
+        // Old RIL deprecated
+        int *p_cur = (int *) response;
+
+        startResponse;
+
+        // With the Old RIL we see one or 2 integers.
+        size_t num = responselen / sizeof (int); // Number of integers from ril
+        size_t totalIntegers = 7; // Number of integers in RIL_SignalStrength
+        size_t i;
+
+        appendPrintBuf("%s[", printBuf);
+        for (i = 0; i < num; i++) {
+            appendPrintBuf("%s %d", printBuf, *p_cur);
+            p.writeInt32(*p_cur++);
+        }
+        appendPrintBuf("%s]", printBuf);
+
+        // Fill the remainder with zero's.
+        for (; i < totalIntegers; i++) {
+            p.writeInt32(0);
+        }
+
+        closeResponse;
+
     } else {
         LOGE("invalid response length");
         return RIL_ERRNO_INVALID_RESPONSE;
@@ -2664,7 +2689,7 @@ RIL_register (const RIL_RadioFunctions *callbacks) {
              callbacks->version, RIL_VERSION);
         return;
     }
-    LOGE("RIL_register: RIL version %d", callbacks->version);
+    LOGI("RIL_register: RIL version %d", callbacks->version);
 
     if (s_registerCalled > 0) {
         LOGE("RIL_register has been called more than once. "
