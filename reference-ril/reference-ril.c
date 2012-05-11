@@ -158,6 +158,9 @@ static int s_repollCallsCount = 0;
 static int s_expectAnswer = 0;
 #endif /* WORKAROUND_ERRONEOUS_ANSWER */
 
+static int sUnsolictedCREG_failed = 0;
+static int sUnsolictedCGREG_failed = 0;
+
 static void pollSIMState (void *param);
 static void setRadioState(RIL_RadioState newState);
 
@@ -898,6 +901,43 @@ static void requestSignalStrength(void *data, size_t datalen, RIL_Token t)
     int err;
     int response[2];
     char *line;
+
+    if(sUnsolictedCREG_failed) {
+        LOGW("Retry the AT+CREG event report setting");
+        /*  Network registration events */
+        err = at_send_command("AT+CREG=2", &p_response);
+    
+        /* some handsets -- in tethered mode -- don't support CREG=2 */
+        if (err < 0 || p_response->success == 0) {
+            at_response_free(p_response);
+            err = at_send_command("AT+CREG=1", &p_response);
+        }
+    
+        if (err < 0 || p_response->success == 0) {
+            LOGE("Warning!No network registration events reported");
+            sUnsolictedCREG_failed = 1;
+        }
+        else {
+            sUnsolictedCREG_failed = 0;
+        }
+        at_response_free(p_response);
+    }
+
+    if(sUnsolictedCGREG_failed) {
+        LOGW("Retry the AT+CGREG event report setting");
+        /*  GPRS registration events */
+        err = at_send_command("AT+CGREG=1", &p_response);
+        if (err < 0 || p_response->success == 0) {
+          LOGE("Warning!No GPRS registration events reported");
+          sUnsolictedCGREG_failed = 1;
+        }
+        else {
+          sUnsolictedCGREG_failed = 0;
+       }
+
+      at_response_free(p_response);
+    }
+
 
     err = at_send_command_singleline("AT+CSQ", "+CSQ:", &p_response);
 
@@ -2225,13 +2265,30 @@ static void initializeCallback(void *param)
 
     /* some handsets -- in tethered mode -- don't support CREG=2 */
     if (err < 0 || p_response->success == 0) {
-        at_send_command("AT+CREG=1", NULL);
+        at_response_free(p_response);
+        err = at_send_command("AT+CREG=1", &p_response);
     }
 
+    if (err < 0 || p_response->success == 0) {
+        LOGE("Warning!No network registration events reported");
+        sUnsolictedCREG_failed = 1;
+    }
+    else {
+        sUnsolictedCREG_failed = 0;
+    }
     at_response_free(p_response);
 
     /*  GPRS registration events */
-    at_send_command("AT+CGREG=1", NULL);
+    err = at_send_command("AT+CGREG=1", &p_response);
+    if (err < 0 || p_response->success == 0) {
+        LOGE("Warning!No GPRS registration events reported");
+        sUnsolictedCGREG_failed = 1;
+    }
+    else {
+        sUnsolictedCGREG_failed = 0;
+    }
+
+    at_response_free(p_response);
 
     /*  Call Waiting notifications */
     at_send_command("AT+CCWA=1", NULL);
