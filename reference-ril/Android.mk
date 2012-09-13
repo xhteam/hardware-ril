@@ -13,6 +13,7 @@ LOCAL_SRC_FILES:= \
     atchannel.c \
     misc.c \
     runtime_port.c \
+    fcp_parser.c \
     at_tok.c
 
 LOCAL_SHARED_LIBRARIES := \
