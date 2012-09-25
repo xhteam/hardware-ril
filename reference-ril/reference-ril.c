@@ -14,7 +14,7 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
-/* Copyright (C) 2011-2012 Freescale Semiconductor, Inc. */
+/* Copyright (C) 2011-2013 Freescale Semiconductor, Inc. */
 
 #include <telephony/ril_cdma_sms.h>
 #include <stdio.h>
@@ -2537,6 +2537,10 @@ onRequest (int request, void *data, size_t datalen, RIL_Token t)
                 requestCdmaBaseBandVersion(request, data, datalen, t);
                 break;
             } // Fall-through if tech is not cdma
+            else if (current_modem_type == HUAWEI_MODEM){
+                requestBasebandVersion(data, datalen, t);
+                break;
+            }
 
         case RIL_REQUEST_DEVICE_IDENTITY:
             if (TECH_BIT(sMdmInfo) == MDM_CDMA) {
@@ -2579,13 +2583,6 @@ onRequest (int request, void *data, size_t datalen, RIL_Token t)
                 requestExitEmergencyMode(data, datalen, t);
                 break;
             } // Fall-through if tech is not cdma
-
-        case RIL_REQUEST_BASEBAND_VERSION:
-            if (current_modem_type == HUAWEI_MODEM)
-                requestBasebandVersion(data, datalen, t);
-            else
-                RIL_onRequestComplete(t, RIL_E_REQUEST_NOT_SUPPORTED, NULL, 0);
-            break;
 
         default:
             ALOGD("Request not supported. Tech: %d",TECH(sMdmInfo));
