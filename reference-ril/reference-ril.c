@@ -110,6 +110,19 @@ typedef enum {
     UICC_TYPE_USIM,
 } UICC_Type;
 
+/* Huawei E770W subsys_mode spec. */
+typedef enum{
+	SUB_SYSMODE_NO_SERVICE = 0,
+	SUB_SYSMODE_GSM,
+	SUB_SYSMODE_GPRS,
+	SUB_SYSMODE_EDGE,
+	SUB_SYSMODE_WCDMA,
+	SUB_SYSMODE_HSDPA,
+	SUB_SYSMODE_HSUPA,
+	SUB_SYSMODE_HSUPA_HSDPA,
+	SUB_SYSMODE_INVALID,
+}SUB_SYSMODE;
+
 static void onRequest (int request, void *data, size_t datalen, RIL_Token t);
 static RIL_RadioState currentState();
 static int onSupports (int requestCode);
@@ -188,6 +201,12 @@ static int s_expectAnswer = 0;
 
 static int sUnsolictedCREG_failed = 0;
 static int sUnsolictedCGREG_failed = 0;
+/*
+ * Some modem, like Huawei E770W, doesn't contain network type field in CGREG response.
+ *  We need to get network type through other way.
+ */
+static int sNetworkType = 0; //Unknown
+static int sLastNetworkType = -1; //Unknown
 
 static void pollSIMState (void *param);
 static void setRadioState(RIL_RadioState newState);
@@ -1118,9 +1137,17 @@ static void requestRegistrationState(int request, void *data,
     asprintf(&responseStr[1], "%x", response[1]);
     asprintf(&responseStr[2], "%x", response[2]);
 
-    if (count > 3)
+    if (count > 3){
         asprintf(&responseStr[3], "%d", response[3]);
-
+    }else{
+		/*
+		 * In case +CGREG doesn't respond with <networkType>, networkType
+		 * may be obtained in some other way.
+		 */
+		response[3] = sNetworkType;
+		asprintf(&responseStr[3], "%d", response[3]);
+		count = 4;
+	}
     RIL_onRequestComplete(t, RIL_E_SUCCESS, responseStr, count*sizeof(char*));
     at_response_free(p_response);
 
@@ -2984,6 +3011,42 @@ static void waitForClose()
 }
 
 /**
+* Convert radio technology between Android telephony and Huawei EM770W spec.
+*/
+static RIL_RadioTechnology convertRILRadioTechnology(int subsys_mode)
+{
+	RIL_RadioTechnology ret;
+	switch (subsys_mode){
+		case SUB_SYSMODE_NO_SERVICE:
+			ret = RADIO_TECH_UNKNOWN;
+		break;
+		case SUB_SYSMODE_GSM:
+			ret = RADIO_TECH_GSM;
+		break;
+		case SUB_SYSMODE_GPRS:
+			ret = RADIO_TECH_GPRS;
+		break;
+		case SUB_SYSMODE_EDGE:
+			ret = RADIO_TECH_EDGE;
+		break;
+		case SUB_SYSMODE_WCDMA:
+			ret = RADIO_TECH_UMTS;
+		break;
+		case SUB_SYSMODE_HSDPA:
+			ret = RADIO_TECH_HSDPA;
+		break;
+		case SUB_SYSMODE_HSUPA:
+			ret = RADIO_TECH_HSUPA;
+		break;
+		case SUB_SYSMODE_HSUPA_HSDPA:
+			ret = RADIO_TECH_HSPA;
+		break;
+		default:
+			ret = RADIO_TECH_UNKNOWN;
+	}
+	return ret;
+}
+/**
  * Called by atchannel when an unsolicited line appears
  * This is called on atchannel's reader thread. AT commands may
  * not be issued here
@@ -3091,8 +3154,32 @@ static void onUnsolicited (const char *s, const char *sms_pdu)
     } else if (strStartsWith(s, "+CME ERROR: 150")) {
         RIL_requestTimedCallback (onDataCallListChanged, NULL, NULL);
 #endif /* WORKAROUND_FAKE_CGEV */
-    }
+    }else if (strStartsWith(s, "^MODE")){
+		/*
+		 * Huawei E770W reports it's subsys_mode as networkType.
+		 */
+		char *response;
+
+		line = strdup(s);
+		at_tok_start(&line);
+
+		err = at_tok_nextstr(&line, &response);
+
+		if (err != 0) {
+			ALOGE("invalid MODE line %s\n", s);
+		} else {
+			response[0] = atoi(line);
+			sNetworkType = convertRILRadioTechnology(response[0]);
+			if (sLastNetworkType != sNetworkType){
+				sLastNetworkType = sNetworkType;
+				RIL_onUnsolicitedResponse (
+					RIL_UNSOL_RESPONSE_VOICE_NETWORK_STATE_CHANGED,
+					NULL, 0);
+			}
+		}
+	}
 }
+
 
 /* Called on command or reader thread */
 static void onATReaderClosed()
