@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/* Copyright (C) 2011-2012 Freescale Semiconductor, Inc. */
 
 #ifndef ANDROID_RIL_H
 #define ANDROID_RIL_H 1
@@ -99,7 +100,8 @@ typedef enum {
     RADIO_TECH_EVDO_B = 12,
     RADIO_TECH_EHRPD = 13,
     RADIO_TECH_LTE = 14,
-    RADIO_TECH_HSPAP = 15 // HSPA+
+    RADIO_TECH_HSPAP = 15, // HSPA+
+    RADIO_TECH_GSM = 16 // Only supports voice
 } RIL_RadioTechnology;
 
 // Do we want to split Data from Voice and the use

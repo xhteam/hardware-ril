@@ -257,7 +257,23 @@ const char *runtime_3g_port_data(void)
 		return FAKE_PORT;
 	return device->dataport;
 }
+const int runtime_3g_port_type(void)
+{
+	struct modem_3g_device *device;
+	int type = UNKNOWN_MODEM;
+	if (UNKNOWN_MODEM == current_modem_type){
+		if (NULL != find_matched_device()){
+			/* Set gobal modem type. */
+			type = device->type;
+		}
+	}else{
+		type = current_modem_type;
+	}
 
+	LOGI("Current modem type = %d", type);
+
+	return type;
+}
 static void free_uevent(struct uevent *event)
 {
     int i;

@@ -46,6 +46,7 @@
 #include "hardware/qemu_pipe.h"
 #include <linux/if.h>
 
+#undef LOG_TAG
 #define LOG_TAG "RIL"
 #include <utils/Log.h>
 
@@ -113,14 +114,14 @@ typedef enum {
 /* Huawei E770W subsys_mode spec. */
 typedef enum{
 	SUB_SYSMODE_NO_SERVICE = 0,
-	SUB_SYSMODE_GSM,
-	SUB_SYSMODE_GPRS,
-	SUB_SYSMODE_EDGE,
-	SUB_SYSMODE_WCDMA,
-	SUB_SYSMODE_HSDPA,
-	SUB_SYSMODE_HSUPA,
-	SUB_SYSMODE_HSUPA_HSDPA,
-	SUB_SYSMODE_INVALID,
+	SUB_SYSMODE_GSM = 1,
+	SUB_SYSMODE_GPRS = 2,
+	SUB_SYSMODE_EDGE = 3,
+	SUB_SYSMODE_WCDMA = 4,
+	SUB_SYSMODE_HSDPA = 5,
+	SUB_SYSMODE_HSUPA = 6,
+	SUB_SYSMODE_HSUPA_HSDPA = 7,
+	SUB_SYSMODE_INVALID = 8,
 }SUB_SYSMODE;
 
 static void onRequest (int request, void *data, size_t datalen, RIL_Token t);
@@ -210,6 +211,7 @@ static int sLastNetworkType = -1; //Unknown
 
 static void pollSIMState (void *param);
 static void setRadioState(RIL_RadioState newState);
+static int convertRILRadioTechnology(int subsys_mode, int modem_type);
 
 static int clccStateToRILState(int state, RIL_CallState *p_state)
 
@@ -1034,8 +1036,13 @@ static void requestRegistrationState(int request, void *data,
         cmd = "AT+CREG?";
         prefix = "+CREG:";
     } else if (request == RIL_REQUEST_DATA_REGISTRATION_STATE) {
-        cmd = "AT+CGREG?";
-        prefix = "+CGREG:";
+        if (AMAZON_MODEM == runtime_3g_port_type()){
+			cmd = "AT+CREG?";
+			prefix = "+CREG:";
+		}else{
+			cmd = "AT+CGREG?";
+			prefix = "+CGREG:";
+		}
     } else {
         assert(0);
         goto error;
@@ -1138,6 +1145,7 @@ static void requestRegistrationState(int request, void *data,
     asprintf(&responseStr[2], "%x", response[2]);
 
     if (count > 3){
+		response[3] = convertRILRadioTechnology(response[3], runtime_3g_port_type());
         asprintf(&responseStr[3], "%d", response[3]);
     }else{
 		/*
@@ -1805,7 +1813,7 @@ static void initializeCallback(void *param);
 void requestEnterSimPin(void *data, size_t datalen, RIL_Token t, int request)
 {
     ATResponse *atresponse = NULL;
-    int err;
+    int err = 0;
     char *cmd = NULL;
     const char **strings = (const char **) data;
     int num_retries = -1;
@@ -1861,7 +1869,7 @@ void requestEnterSimPin(void *data, size_t datalen, RIL_Token t, int request)
         goto error;
     }
     if (atresponse->success == 0) {
-        if (cme_error_code = at_get_cme_error(atresponse)) {
+        if ((cme_error_code = at_get_cme_error(atresponse))) {
             switch (cme_error_code) {
             case CME_SIM_PIN_REQUIRED:
             case CME_SIM_PUK_REQUIRED:
@@ -1980,7 +1988,7 @@ static void requestChangePassword(char *facility, void *data, size_t datalen,
         goto error;
     }
     if (atresponse->success == 0) {
-        if (cme_error_code = at_get_cme_error(atresponse)) {
+        if ((cme_error_code = at_get_cme_error(atresponse))) {
             switch (cme_error_code) {
             case CME_INCORRECT_PASSWORD: /* CME ERROR 16: "Incorrect password" */
                 LOGI("%s(): Incorrect password", __func__);
@@ -2102,7 +2110,7 @@ void requestSetFacilityLock(void *data, size_t datalen, RIL_Token t)
         goto exit;
     }
     if (atresponse->success == 0) {
-        if (cme_error_code = at_get_cme_error(atresponse)) {
+        if ((cme_error_code = at_get_cme_error(atresponse))) {
             switch (cme_error_code) {
             /* CME ERROR 11: "SIM PIN required" happens when PIN is wrong */
             case CME_SIM_PIN_REQUIRED:
@@ -3013,36 +3021,43 @@ static void waitForClose()
 /**
 * Convert radio technology between Android telephony and Huawei EM770W spec.
 */
-static RIL_RadioTechnology convertRILRadioTechnology(int subsys_mode)
+static int convertRILRadioTechnology(int subsys_mode, int modem_type)
 {
-	RIL_RadioTechnology ret;
-	switch (subsys_mode){
-		case SUB_SYSMODE_NO_SERVICE:
-			ret = RADIO_TECH_UNKNOWN;
-		break;
-		case SUB_SYSMODE_GSM:
-			ret = RADIO_TECH_GSM;
-		break;
-		case SUB_SYSMODE_GPRS:
-			ret = RADIO_TECH_GPRS;
-		break;
-		case SUB_SYSMODE_EDGE:
-			ret = RADIO_TECH_EDGE;
-		break;
-		case SUB_SYSMODE_WCDMA:
-			ret = RADIO_TECH_UMTS;
-		break;
-		case SUB_SYSMODE_HSDPA:
-			ret = RADIO_TECH_HSDPA;
-		break;
-		case SUB_SYSMODE_HSUPA:
-			ret = RADIO_TECH_HSUPA;
-		break;
-		case SUB_SYSMODE_HSUPA_HSDPA:
-			ret = RADIO_TECH_HSPA;
-		break;
-		default:
-			ret = RADIO_TECH_UNKNOWN;
+	int ret;
+	if (HUAWEI_MODEM == modem_type){
+		switch (subsys_mode){
+			case SUB_SYSMODE_NO_SERVICE:
+				ret = RADIO_TECH_UNKNOWN;
+			break;
+			case SUB_SYSMODE_GSM:
+				ret = RADIO_TECH_GSM;
+			break;
+			case SUB_SYSMODE_GPRS:
+				ret = RADIO_TECH_GPRS;
+			break;
+			case SUB_SYSMODE_EDGE:
+				ret = RADIO_TECH_EDGE;
+			break;
+			case SUB_SYSMODE_WCDMA:
+				ret = RADIO_TECH_UMTS;
+			break;
+			case SUB_SYSMODE_HSDPA:
+				ret = RADIO_TECH_HSDPA;
+			break;
+			case SUB_SYSMODE_HSUPA:
+				ret = RADIO_TECH_HSUPA;
+			break;
+			case SUB_SYSMODE_HSUPA_HSDPA:
+				ret = RADIO_TECH_HSPA;
+			break;
+			default:
+				ret = RADIO_TECH_UNKNOWN;
+		}
+	}else if (AMAZON_MODEM == modem_type){
+		/* ToDo: convert radio technology for Amazon1*/
+		ret = RADIO_TECH_UNKNOWN;
+	}else{
+		ret = subsys_mode;
 	}
 	return ret;
 }
@@ -3166,15 +3181,17 @@ static void onUnsolicited (const char *s, const char *sms_pdu)
 		err = at_tok_nextstr(&line, &response);
 
 		if (err != 0) {
-			ALOGE("invalid MODE line %s\n", s);
+			LOGE("invalid MODE line %s\n", s);
 		} else {
 			response[0] = atoi(line);
-			sNetworkType = convertRILRadioTechnology(response[0]);
+			sNetworkType = convertRILRadioTechnology(response[0], runtime_3g_port_type());
 			if (sLastNetworkType != sNetworkType){
 				sLastNetworkType = sNetworkType;
+#ifdef BOGUS
 				RIL_onUnsolicitedResponse (
 					RIL_UNSOL_RESPONSE_VOICE_NETWORK_STATE_CHANGED,
 					NULL, 0);
+#endif /* BOGUS */
 			}
 		}
 	}
