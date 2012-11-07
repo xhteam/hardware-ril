@@ -44,7 +44,7 @@
 #define LOG_TAG "RIL"
 #include <utils/Log.h>
 
-#include "runtime.h"
+#include <runtime/runtime.h>
 
 #define MAX_AT_RESPONSE 0x1000
 
@@ -2621,9 +2621,20 @@ static void onCancel (RIL_Token t)
 
 }
 
+#define REFERENCE_RIL_DEF_VERSION "android reference-ril 1.0"
+#define REFERENCE_RIL_HUAWEI_VERSION "HUAWEI reference-ril 1.0"
+#define REFERENCE_RIL_AMAZON_VERSION "AMAZON reference-ril 1.0"
 static const char * getVersion(void)
 {
-    return "android reference-ril 1.0";
+	int modem_type;
+	modem_type = runtime_3g_port_type();
+
+	if (AMAZON_MODEM == modem_type)
+		return REFERENCE_RIL_AMAZON_VERSION;
+	else if (HUAWEI_MODEM == modem_type)
+		return REFERENCE_RIL_HUAWEI_VERSION;
+	else
+		return REFERENCE_RIL_DEF_VERSION;
 }
 
 static void
@@ -3647,7 +3658,6 @@ const RIL_RadioFunctions *RIL_Init(const struct RIL_Env *env, int argc, char **a
     pthread_attr_t attr;
 
     s_rilenv = env;
-    start_uevent_monitor();
 #ifdef HAVE_DATA_DEVICE
     while ( -1 != (opt = getopt(argc, argv, "p:d:u:s:"))) {
 #else

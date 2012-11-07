@@ -16,7 +16,7 @@ LOCAL_SRC_FILES:= \
     at_tok.c
 
 LOCAL_SHARED_LIBRARIES := \
-    libcutils libutils libril
+    libcutils libutils libril libruntime-ril-port
 
 # for asprinf
 LOCAL_CFLAGS := -D_GNU_SOURCE

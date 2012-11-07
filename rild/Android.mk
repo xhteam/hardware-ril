@@ -10,7 +10,8 @@ LOCAL_SRC_FILES:= \
 LOCAL_SHARED_LIBRARIES := \
 	libcutils \
 	libril \
-	libdl
+	libdl  \
+	libruntime-ril-port
 
 LOCAL_CFLAGS := -DRIL_SHLIB
 
