@@ -33,7 +33,7 @@
 
 #include <signal.h>
 #include <unistd.h>
-#include "runtime.h"
+#include <runtime/runtime.h>
 
 int current_modem_type = UNKNOWN_MODEM;
 
@@ -104,7 +104,23 @@ static struct modem_3g_device modem_3g_device_table[] = {
 		.deviceport	= "/dev/ttyACM3",
 		.dataport	= "/dev/ttyACM0",
 		.type		= AMAZON_MODEM,
-	}
+	},
+	{
+		.name		= "ZTE-MF220",
+		.idVendor	= "19d2",
+		.idProduct	= "0145",
+		.deviceport     = "/dev/ttyUSB2",
+		.dataport	= "/dev/ttyUSB4",
+		.type		= ZTE_MODEM,
+	},
+	{
+		.name		= "ZTE-MF210",
+		.idVendor	= "19d2",
+		.idProduct	= "0117",
+		.deviceport     = "/dev/ttyUSB1",
+		.dataport	= "/dev/ttyUSB2",
+		.type		= ZTE_MODEM,
+	},
 };
 
 /* -------------------------------------------------------------- */
@@ -257,12 +273,12 @@ const char *runtime_3g_port_data(void)
 		return FAKE_PORT;
 	return device->dataport;
 }
-const int runtime_3g_port_type(void)
+int runtime_3g_port_type(void)
 {
 	struct modem_3g_device *device;
 	int type = UNKNOWN_MODEM;
 	if (UNKNOWN_MODEM == current_modem_type){
-		if (NULL != find_matched_device()){
+		if (NULL != (device = find_matched_device())){
 			/* Set gobal modem type. */
 			type = device->type;
 		}

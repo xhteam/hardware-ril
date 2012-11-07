@@ -22,6 +22,7 @@
 
 #include "misc.h"
 
+#undef LOG_TAG
 #define LOG_TAG "RILD"
 #include <utils/Log.h>
 /** returns 1 if line starts with prefix, 0 if it does not */

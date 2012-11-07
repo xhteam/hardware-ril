@@ -18,6 +18,7 @@
 extern "C" {
 #endif
 
+char char2nib(char c);
 #define TLV_DATA(tlv, pos) (((unsigned)char2nib(tlv.data[(pos) * 2 + 0]) << 4) | \
 ((unsigned)char2nib(tlv.data[(pos) * 2 + 1]) << 0))
 

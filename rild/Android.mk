@@ -9,7 +9,8 @@ LOCAL_SRC_FILES:= \
 
 LOCAL_SHARED_LIBRARIES := \
 	libcutils \
-	libril
+	libril \
+	libruntime-ril-port
 
 ifeq ($(TARGET_ARCH),arm)
 LOCAL_SHARED_LIBRARIES += libdl

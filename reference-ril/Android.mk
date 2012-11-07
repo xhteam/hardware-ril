@@ -12,12 +12,11 @@ LOCAL_SRC_FILES:= \
     reference-ril.c \
     atchannel.c \
     misc.c \
-    runtime_port.c \
     fcp_parser.c \
     at_tok.c
 
 LOCAL_SHARED_LIBRARIES := \
-    libcutils libutils libril
+    libcutils libutils libril libruntime-ril-port
 
 # for asprinf
 LOCAL_CFLAGS := -D_GNU_SOURCE
