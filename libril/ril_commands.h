@@ -123,3 +123,5 @@
     {RIL_REQUEST_ACKNOWLEDGE_INCOMING_GSM_SMS_WITH_PDU, dispatchStrings, responseVoid},
     {RIL_REQUEST_STK_SEND_ENVELOPE_WITH_STATUS, dispatchString, responseSIM_IO},
     {RIL_REQUEST_VOICE_RADIO_TECH, dispatchVoiceRadioTech, responseInts},
+    {RIL_REQUEST_PTT_DEBUG, dispatchStrings, responseVoid},
+    {RIL_REQUEST_RIL_DEBUG, dispatchStrings, responseString},

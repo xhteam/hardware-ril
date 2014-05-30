@@ -3314,6 +3314,9 @@ typedef struct {
  */
 #define RIL_REQUEST_VOICE_RADIO_TECH 108
 
+#define RIL_REQUEST_PTT_DEBUG 109
+#define RIL_REQUEST_RIL_DEBUG 110
+
 
 /***********************************************************************/
 

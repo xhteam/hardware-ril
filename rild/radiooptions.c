@@ -34,6 +34,8 @@ enum options {
     DIAL_CALL,
     ANSWER_CALL,
     END_CALL,
+    RIL_DBG,
+    PTT_DBG,
 };
 
 
@@ -49,7 +51,9 @@ static void print_usage() {
            7 - DEACTIVE_PDP, \n\
            8 number - DIAL_CALL number, \n\
            9 - ANSWER_CALL, \n\
-           10 - END_CALL \n");
+           10 - END_CALL \n\
+	   11 - RIL Debug\n\
+	   12 - PTT Debug\n");
 }
 
 static int error_check(int argc, char * argv[]) {
@@ -57,11 +61,11 @@ static int error_check(int argc, char * argv[]) {
         return -1;
     }
     const int option = atoi(argv[1]);
-    if (option < 0 || option > 10) {
+    if (option < 0 || option > 11) {
         return 0;
-    } else if ((option == DIAL_CALL || option == SETUP_PDP) && argc == 3) {
+    } else if ((option == DIAL_CALL || option == SETUP_PDP || option == RIL_DBG || option== PTT_DBG) && argc == 3) {
         return 0;
-    } else if ((option != DIAL_CALL && option != SETUP_PDP) && argc == 2) {
+    } else if ((option != DIAL_CALL && option != SETUP_PDP && option != RIL_DBG && option!= PTT_DBG) && argc == 2) {
         return 0;
     }
     return -1;
@@ -69,7 +73,7 @@ static int error_check(int argc, char * argv[]) {
 
 static int get_number_args(char *argv[]) {
     const int option = atoi(argv[1]);
-    if (option != DIAL_CALL && option != SETUP_PDP) {
+    if (option != DIAL_CALL && option != SETUP_PDP && option != RIL_DBG && option != PTT_DBG) {
         return 1;
     } else {
         return 2;

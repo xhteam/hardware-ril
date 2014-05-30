@@ -2702,6 +2702,18 @@ static void debugCallback (int fd, short flags, void *param) {
             issueLocalRequest(RIL_REQUEST_HANGUP, &hangupData,
                               sizeof(hangupData));
             break;
+	case 11:
+	   actData[0] = args[1];
+	    ALOGI("Debug port: RIL debug %s",actData[0]);
+           issueLocalRequest(RIL_REQUEST_RIL_DEBUG, &actData,
+                              sizeof(actData));
+	   break;
+	case 12:
+	   actData[0] = args[1];
+	    ALOGI("Debug port: RIL debug %s",actData[0]);
+           issueLocalRequest(RIL_REQUEST_PTT_DEBUG, &actData,
+                              sizeof(actData));
+	   break;
         default:
             ALOGE ("Invalid request");
             break;
@@ -3470,6 +3482,8 @@ requestToString(int request) {
         case RIL_REQUEST_ACKNOWLEDGE_INCOMING_GSM_SMS_WITH_PDU: return "RIL_REQUEST_ACKNOWLEDGE_INCOMING_GSM_SMS_WITH_PDU";
         case RIL_REQUEST_STK_SEND_ENVELOPE_WITH_STATUS: return "RIL_REQUEST_STK_SEND_ENVELOPE_WITH_STATUS";
         case RIL_REQUEST_VOICE_RADIO_TECH: return "VOICE_RADIO_TECH";
+	case RIL_REQUEST_PTT_DEBUG: return "PTT_DEBUG";
+	case RIL_REQUEST_RIL_DEBUG: return "RIl_DEBUG";
         case RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED: return "UNSOL_RESPONSE_RADIO_STATE_CHANGED";
         case RIL_UNSOL_RESPONSE_CALL_STATE_CHANGED: return "UNSOL_RESPONSE_CALL_STATE_CHANGED";
         case RIL_UNSOL_RESPONSE_VOICE_NETWORK_STATE_CHANGED: return "UNSOL_RESPONSE_VOICE_NETWORK_STATE_CHANGED";
