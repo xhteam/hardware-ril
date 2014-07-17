@@ -3314,8 +3314,186 @@ typedef struct {
  */
 #define RIL_REQUEST_VOICE_RADIO_TECH 108
 
-#define RIL_REQUEST_PTT_DEBUG 109
-#define RIL_REQUEST_RIL_DEBUG 110
+
+/**
+ * RIL_REQUEST_PTT_QUERY_AVAILABLE_GROUPS 
+ *
+ * "data" is NULL
+ * "response" is int *
+ * ((int *) response)[0] is of type const PttGroups
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ */
+#define RIL_REQUEST_PTT_QUERY_AVAILABLE_GROUPS 109 
+
+
+
+/**
+ * RIL_REQUEST_PTT_GROUP_SETUP
+ *
+ * User request to join the group.
+ *
+ * "data" is const int *
+ *  ((const int *)data)[0] is GID
+ *  ((const int *)data)[1](optional) is Priority
+ *  ((const int *)data)[2](optional) is UserJointIndicator (0: manual; 1: auto join)
+ *
+ * "response" is const int *
+ * ((const int *)response)[0] is "ActionCause"
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  GENERIC_FAILURE
+ */
+#define RIL_REQUEST_PTT_GROUP_SETUP 110
+
+
+
+/**
+ * RIL_REQUEST_PTT_GROUP_RELEASE
+ *
+ * User request to release the group
+ *
+ * "data" is const int *
+ * ((const int *)data)[0] is CC_Instance
+ * ((const int *)data)[1] is GID
+ *
+ * "response" is const int *
+ * ((const int *)response)[0] is "ActionCause"
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  GENERIC_FAILURE
+ */
+#define RIL_REQUEST_PTT_GROUP_RELEASE 111
+
+
+
+/**
+ * RIL_REQUEST_PTT_CALL_DIAL
+ *
+ * User request to dial(voice call). 
+ *
+ * "data" is const int *
+ * ((const int *)data)[0] is CC_Instance
+ * ((const int *)data)[1] is AI_Service
+ * ((const int *)data)[2] is Priority
+ * ((const int *)data)[3] is CalledPartyID(phone number or GID)
+ *
+ * "response" is NULL
+ * 
+ * Valid errors:
+ *  SUCCESS
+ *  GENERIC_FAILURE
+ */
+#define RIL_REQUEST_PTT_CALL_DIAL 112
+
+
+
+/**
+ * RIL_REQUEST_PTT_CALL_HANGUP
+ *
+ * User request to hangup(voice call)
+ *
+ * "data" is const int *
+ * ((const int *)data)[0] is CC_Instance
+ * ((const int *)data)[1] is GID
+ *
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  GENERIC_FAILURE
+ */
+#define RIL_REQUEST_PTT_CALL_HANGUP 113
+
+
+
+/**
+ * RIL_REQUEST_PTT_CURRENT_GROUP_SCANLIST_UPDATE
+ *
+ * User request to update the scanlist.
+ *
+ * "data" is const int *
+ * ((const int *)data)[0] is Update Switcher(0: close update function; 1: enable)
+ * ((const int *)data)[1] is GID1
+ * ((const int *)data)[2] is GID2
+ * ...
+ * ((const int *)data)[n] is GIDN-1
+ *
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  GENERIC_FAILURE
+ */
+#define RIL_REQUEST_PTT_CURRENT_GROUP_SCANLIST_UPDATE 114
+
+
+
+/**
+ * RIL_REQUEST_PTT_QUERY_BLOCKED_INDICATOR
+ *
+ * Uesr request to query blocked state.
+ *
+ * "data" is const int *
+ * ((const int *)data)[0] is "BlockedIndicator"
+ *
+ * "response" is NULL
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  GENERIC_FAILURE
+ */
+#define RIL_REQUEST_PTT_QUERY_BLOCKED_INDICATOR 115
+
+
+
+
+/**
+ * RIL_REQUEST_PTT_DEVICE_INFO
+ *
+ * User request to get device infomation(ptt, sms, ptt pv)
+ *
+ * "data" is NULL
+ *
+ * "response" is
+ * ((const int *)data)[0] is Ptt_voice (1: supported; 0: unsupported)
+ * ((const int *)data)[1] is Ptt_sms   (same as above)
+ * ((const int *)data)[2] is Ptt_pv    (same as above)
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  GENERIC_FAILURE
+ */
+#define RIL_REQUEST_PTT_DEVICE_INFO	116
+
+
+
+/** 
+ * RIL_REQUEST_PTT_QUERY_BIZ_STATE
+ *
+ * User request to query PTT biz state
+ *
+ * "data" is NULL
+ *
+ * "response" 
+ * ((const char **)data)[0] is Ptt_state(0: un-registed; 1: registed)
+ * ((const char **)data)[1] is [group_info](optional)
+ * ((const char **)data)[2] is [person call info](optional)
+ *
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  GENERIC_FAILURE
+ */
+
+#define RIL_REQUEST_PTT_DEBUG 117
+#define RIL_REQUEST_RIL_DEBUG 118
+
 
 
 /***********************************************************************/
@@ -3795,6 +3973,225 @@ typedef struct {
  *
  */
 #define RIL_UNSOL_VOICE_RADIO_TECH_CHANGED 1035
+
+
+
+#define RIL_UNSOL_PTT_GROUP_INFO_CHANGED 1036
+
+#define RIL_UNSOL_PTT_CALL_GRANT_STATUS_CHANGED 1037
+
+/* added by ferris, Jul6,2014 */
+#define FERRIS_UNSOL_BASE RIL_UNSOL_PTT_CALL_GRANT_STATUS_CHANGED
+
+
+
+/**
+ * RIL_UNSOL_PTT_CALL_INDICATOR
+ *
+ * Report Voice setup finshed, ready for the call. Indicator for Voice Request in V2.2.0.
+ *
+ * "data" is const int *
+ * (const int *)data[0] is CC_Instance
+ * (const int *)data[1] is GID
+ * (const int *)data[2] is PttGrant (0: grant success; 1: grant failed, because of ActionCause)
+ * (const int *)data[3] is ActionCause
+ * (const int *)data[4] is Group Owner(0: not group owner; 1: group owner)
+ */
+#define RIL_UNSOL_PTT_CALL_INDICATOR (FERRIS_UNSOL_BASE + 1)
+
+
+
+/**
+ * RIL_UNSOL_PTT_GROUP_RELEASE
+ *
+ * Report group closed.
+ *
+ * "data" is const int *
+ * (const int *)data[0] is CC_Instance
+ * (const int *)data[1] is GID 
+ * (const int *)data[2] is "ActionCauses"
+ */
+#define RIL_UNSOL_PTT_GROUP_RELEASE (FERRIS_UNSOL_BASE + 2)
+
+
+
+/** 
+ * RIL_UNSOL_PTT_NOTIFICATION_CALL
+ *
+ *	Report voice calling.
+ *	
+ * "data" is const int *
+ * (const int *)data[0] is CC_Instance, 3bit ascii number, it's always "0" in V2.2.0 and before
+ * (const int *)data[1] is "PttCallStatus"
+ * (const int *)data[2] is AI_Service (0: GroupVoice; 4: Normal Voice; Other is NU in V2.2.0)
+ * (const int *)data[3] is Simplex (0: duplex-NormalVoice; 1: simplex-GroupVoice)
+ * (const int *)data[4] is Call Party Identity (Calling number, phone ID or GID)
+ * (const int *)data[5] is Demand Indicator (0: Non-preemptive; 1: Preemptive)
+ * (const int *)data[6] is Priority (0~15, less is higher)
+ * (const int *)data[7] is PtpAmbientLsn in V2.2.0
+ * (const int *)data[8] is PttTempGrp> in V2.2.0
+ */
+#define RIL_UNSOL_PTT_NOTIFICATION_CALL (FERRIS_UNSOL_BASE + 3)
+
+
+
+/**
+ * RIL_UNSOL_PTT_CALL_CONNECT
+ *
+ * Report Voice setup finish. Group Voice: notifications about group setup success.
+ * 
+ * "data" is const int *
+ * (const int *)data[0] is CC_Instatnce,
+ * (const int *)data[1] is Comms Typ. 1: success; 0: failed.
+ *
+ */
+#define RIL_UNSOL_PTT_CALL_CONNECT (FERRIS_UNSOL_BASE + 4)
+
+
+
+/** 
+ * RIL_UNSOL_PTT_CALL_HANGUP
+ *
+ * Report voice call is released
+ *
+ * "data" is const int * 
+ * (const int *)data[0] is CC_Instance
+ * (const int *)data[1] is GID
+ * (const int *)data[2] is "ActionCauses"
+ */
+#define RIL_UNSOL_PTT_CALL_HANGUP (FERRIS_UNSOL_BASE + 5)
+
+
+
+/** 
+ * RIL_UNSOL_PTT_OUTGOING_CALL_PROGRESS
+ *
+ * Notification current call dealing procedure(normal voice only in V2.2.0)
+ *
+ * "data" is const int *
+ * (const int *)data[0] is CC_Instance
+ * (const int *)data[1] is "PttCallStatus"
+ * (const int *)data[2] is AI_Service
+ * (const int *)data[3] is Simplex (0: duplex-NormalVoice; 1: simplex-GroupVoice)
+ * (const int *)data[4] is Encryption(0: no encryption; 1: encrpted)
+ */
+#define RIL_UNSOL_PTT_OUTGOING_CALL_PROGRESS (FERRIS_UNSOL_BASE + 6)
+
+
+
+/**
+ * RIL_UNSOL_PTT_BLOCKED_INDICATOR
+ *
+ * Report modem is ON/OFF by remote Operator.
+ *
+ * "data" is const int *
+ * (const int *)data is Blocked Indicator (Indicator < 9)
+ *    The number meanings is "BlockedIndicator[Indicator]"
+ */
+#define RIL_UNSOL_PTT_BLOCKED_INDICATOR (FERRIS_UNSOL_BASE + 7)
+
+
+
+/**
+ * RIL_UNSOL_PTT_GROUP_INDICATOR_UPDATE
+ *
+ * Report Group list need update.
+ *
+ * XXX: Confused command! AT description doesn't match the examples!
+ *
+ * "data" is const char **
+ * ((const char **)data)[0] is Number of Supported Group
+ * ((const char **)data)[1] is Number of Dynamic Group
+ * ((const char **)data)[2] is TunNumber
+ * ((const char **)data)[3] is [Emergency info] (optional)
+ * ((const char **)data)[4] is [list of supported group] (optional)
+ * ((const char **)data)[5] is [list of dynamic group] (optional)
+ */
+#define RIL_UNSOL_PTT_GROUP_INDICATOR_UPDATE (FERRIS_UNSOL_BASE + 8)
+
+
+
+/**
+ * RIL_UNSOL_PTT_NOTIFICATION_DIAL
+ *
+ * When Group is created, Report the group voice state periodic.
+ * If the group voice state is busy, TODO: then .... I don't know how to do ...
+ *
+ * "data" is const char **
+ * ((const char **)data)[0] is GrantStatus(0: voice free; 1: voice busy)
+ * ((const char **)data)[1] is Speaker Number
+ * ((const char **)data)[2] is Sperker Name(Optional)
+ */
+#define RIL_UNSOL_PTT_NOTIFICATION_DIAL (FERRIS_UNSOL_BASE + 9)
+
+
+
+/**
+ * RIL_UNSOL_PTT_CURRENT_GROUP_ACTIVE_LIST
+ *
+ * Report current active group list periodical(default: 160ms)
+ *
+ * "data" is const int *
+ * (const int *)data[0] is GroupListLength. (0: no any group)
+ * (const int *)data[GroupListLength] is the actual GID.
+ */
+#define RIL_UNSOL_PTT_CURRENT_GROUP_ACTIVE_LIST (FERRIS_UNSOL_BASE + 10)
+
+
+
+/**
+ * RIL_UNSOL_PTT_DEVICE_INFO, useless in any biz procedure
+ */
+#define RIL_UNSOL_PTT_DEVICE_INFO (FERRIS_UNSOL_BASE + 11)
+
+
+
+/**
+ * RIL_UNSOL_PTT_GROUP_OWNER
+ *
+ */
+#define RIL_UNSOL_PTT_GROUP_OWNER (FERRIS_UNSOL_BASE + 12)
+
+/**
+ * RIL_UNSOL_PTT_TRUNKING_MODE
+ *
+ * Extended AT command. 
+ */
+#define RIL_UNSOL_PTT_TRUNKING_MODE (FERRIS_UNSOL_BASE + 13)
+
+
+
+/**
+ * RIL_UNSOL_PTT_NOTIFICATION_JOIN_GROUP
+ *
+ * Extended AT command. 
+ *
+ */
+#define RIL_UNSOL_PTT_NOTIFICATION_JOIN_GROUP (FERRIS_UNSOL_BASE + 14)
+
+/**
+ * RIL_UNSOL_PTT_BIZ_INFO
+ *
+ * Report PTT Business State.
+ *
+ */
+#define RIL_UNSOL_PTT_BIZ_INFO (FERRIS_UNSOL_BASE + 15)
+ 
+
+
+/**
+ * RIL_UNSOL_PTT_NETWORK_VERSION
+ *
+ * Extended AT command. 
+ *
+ * Indicate network version and encodings 
+ *
+ * "data" is const int *
+ * (const int *)data is Network Version. 1: Ver1.0, GBK; 2: Ver2.0, UTF-8
+ */
+#define RIL_UNSOL_PTT_NETWORK_VERSION (FERRIS_UNSOL_BASE + 16)
+
+/*end added */
 
 
 /***********************************************************************/
