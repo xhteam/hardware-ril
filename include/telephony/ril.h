@@ -4097,13 +4097,11 @@ typedef struct {
  *
  * Report Group list need update.
  *
- * XXX: Confused command! AT description doesn't match the examples!
- *
- * "data" is const char **
- * ((const char **)data)[0] is Number of Supported Group
- * ((const char **)data)[1] is Number of Dynamic Group
- * ((const char **)data)[2] is TunNumber
- * ((const char **)data)[3] is [Emergency info] (optional)
+ * "data" is raw bytes array
+ * ((const int **)data)[0] is Number of Supported Group
+ * ((const int **)data)[1] is Number of Dynamic Group
+ * ((const int **)data)[2] is TunNumber
+ * ((const int **)data)[3] is [Emergency info] (optional)
  * ((const char **)data)[4] is [list of supported group] (optional)
  * ((const char **)data)[5] is [list of dynamic group] (optional)
  */
