@@ -123,5 +123,16 @@
     {RIL_REQUEST_ACKNOWLEDGE_INCOMING_GSM_SMS_WITH_PDU, dispatchStrings, responseVoid},
     {RIL_REQUEST_STK_SEND_ENVELOPE_WITH_STATUS, dispatchString, responseSIM_IO},
     {RIL_REQUEST_VOICE_RADIO_TECH, dispatchVoiceRadioTech, responseInts},
+    /* add by ferris, Jul18, 2014 */
+    {RIL_REQUEST_PTT_QUERY_AVAILABLE_GROUPS, dispatchVoid, responseInts},
+    {RIL_REQUEST_PTT_GROUP_SETUP, dispatchInts, responseInts},
+    {RIL_REQUEST_PTT_GROUP_RELEASE, dispatchInts, responseInts},
+    {RIL_REQUEST_PTT_CALL_DIAL, dispatchInts, responseVoid},
+    {RIL_REQUEST_PTT_CALL_HANGUP, dispatchInts, responseVoid},
+    {RIL_REQUEST_PTT_CURRENT_GROUP_SCANLIST_UPDATE, dispatchInts, responseVoid},
+    {RIL_REQUEST_PTT_QUERY_BLOCKED_INDICATOR, dispatchInts, responseVoid},
+    {RIL_REQUEST_PTT_DEVICE_INFO, dispatchVoid, responseInts},
+    {RIL_REQUEST_PTT_QUERY_BIZ_STATE, dispatchVoid, responseInts},
+    /* end add */
     {RIL_REQUEST_PTT_DEBUG, dispatchStrings, responseVoid},
     {RIL_REQUEST_RIL_DEBUG, dispatchStrings, responseString},
