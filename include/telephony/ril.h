@@ -4090,19 +4090,13 @@ typedef struct {
 
 
 /**
- * RIL_UNSOL_PTT_GROUP_INDICATOR_UPDATE
+ * RIL_UNSOL_PTT_QUERY_AVAILABLE_GROUP 
  *
  * Report Group list need update.
  *
- * "data" is raw bytes array
- * ((const int **)data)[0] is Number of Supported Group
- * ((const int **)data)[1] is Number of Dynamic Group
- * ((const int **)data)[2] is TunNumber
- * ((const int **)data)[3] is [Emergency info] (optional)
- * ((const char **)data)[4] is [list of supported group] (optional)
- * ((const char **)data)[5] is [list of dynamic group] (optional)
+ * "data" is "PttGroups"
  */
-#define RIL_UNSOL_PTT_GROUP_INDICATOR_UPDATE (FERRIS_UNSOL_BASE + 8)
+#define RIL_UNSOL_PTT_QUERY_AVAILABLE_GROUP (FERRIS_UNSOL_BASE + 8)
 
 
 

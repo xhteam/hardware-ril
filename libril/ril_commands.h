@@ -124,7 +124,7 @@
     {RIL_REQUEST_STK_SEND_ENVELOPE_WITH_STATUS, dispatchString, responseSIM_IO},
     {RIL_REQUEST_VOICE_RADIO_TECH, dispatchVoiceRadioTech, responseInts},
     /* add by ferris, Jul18, 2014 */
-    {RIL_REQUEST_PTT_QUERY_AVAILABLE_GROUPS, dispatchVoid, responseInts},
+    {RIL_REQUEST_PTT_QUERY_AVAILABLE_GROUPS, dispatchVoid, responseGroupList},
     {RIL_REQUEST_PTT_GROUP_SETUP, dispatchInts, responseInts},
     {RIL_REQUEST_PTT_GROUP_RELEASE, dispatchInts, responseInts},
     {RIL_REQUEST_PTT_CALL_DIAL, dispatchInts, responseVoid},
