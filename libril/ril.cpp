@@ -237,6 +237,7 @@ static int responseSimRefresh(Parcel &p, void *response, size_t responselen);
 static int decodeVoiceRadioTechnology (RIL_RadioState radioState);
 static int decodeCdmaSubscriptionSource (RIL_RadioState radioState);
 static RIL_RadioState processRadioState(RIL_RadioState newRadioState);
+static int responseGroupList(Parcel &p, void *response, size_t responselen);
 
 extern "C" const char * requestToString(int request);
 extern "C" const char * failCauseToString(RIL_Errno);
@@ -2374,6 +2375,63 @@ static int responseCdmaSms(Parcel &p, void *response, size_t responselen) {
     return 0;
 }
 
+static int responseGroupList(Parcel &p, void *response, size_t responselen)
+{
+	#if 0
+    // Write version
+    p.writeInt32(s_callbacks.version);
+
+    if (s_callbacks.version < 5) {
+        return responseDataCallListV4(p, response, responselen);
+    } else {
+        if (response == NULL && responselen != 0) {
+            ALOGE("invalid response: NULL");
+            return RIL_ERRNO_INVALID_RESPONSE;
+        }
+
+        if (responselen % sizeof(RIL_Data_Call_Response_v6) != 0) {
+            ALOGE("invalid response length %d expected multiple of %d",
+                    (int)responselen, (int)sizeof(RIL_Data_Call_Response_v6));
+            return RIL_ERRNO_INVALID_RESPONSE;
+        }
+
+        int num = responselen / sizeof(RIL_Data_Call_Response_v6);
+        p.writeInt32(num);
+
+        RIL_Data_Call_Response_v6 *p_cur = (RIL_Data_Call_Response_v6 *) response;
+        startResponse;
+        int i;
+        for (i = 0; i < num; i++) {
+            p.writeInt32((int)p_cur[i].status);
+            p.writeInt32(p_cur[i].suggestedRetryTime);
+            p.writeInt32(p_cur[i].cid);
+            p.writeInt32(p_cur[i].active);
+            writeStringToParcel(p, p_cur[i].type);
+            writeStringToParcel(p, p_cur[i].ifname);
+            writeStringToParcel(p, p_cur[i].addresses);
+            writeStringToParcel(p, p_cur[i].dnses);
+            writeStringToParcel(p, p_cur[i].gateways);
+            appendPrintBuf("%s[status=%d,retry=%d,cid=%d,%s,%s,%s,%s,%s,%s],", printBuf,
+                p_cur[i].status,
+                p_cur[i].suggestedRetryTime,
+                p_cur[i].cid,
+                (p_cur[i].active==0)?"down":"up",
+                (char*)p_cur[i].type,
+                (char*)p_cur[i].ifname,
+                (char*)p_cur[i].addresses,
+                (char*)p_cur[i].dnses,
+                (char*)p_cur[i].gateways);
+        }
+        removeLastChar;
+        closeResponse;
+    }
+	#else
+	#warning "FIXME responseGroupList not implemented"
+	#endif
+
+    return 0;
+}
+
 /**
  * A write on the wakeup fd is done just to pop us out of select()
  * We empty the buffer here and then ril_event will reset the timers on the
@@ -3538,7 +3596,7 @@ requestToString(int request) {
 	case RIL_UNSOL_PTT_CALL_HANGUP: return "UNSOL_PTT_CALL_HANGUP";
 	case RIL_UNSOL_PTT_OUTGOING_CALL_PROGRESS: return "UNSOL_PTT_OUTGOING_CALL_PROGRESS";
 	case RIL_UNSOL_PTT_BLOCKED_INDICATOR: return "UNSOL_PTT_BLOCKED_INDICATOR";
-	case RIL_UNSOL_PTT_GROUP_INDICATOR_UPDATE: return "UNSOL_PTT_GROUP_INDICATOR_UPDATE";
+	case RIL_UNSOL_PTT_AVAILABLE_GROUP_CHANGED: return "RIL_UNSOL_PTT_AVAILABLE_GROUP_CHANGED";
 	case RIL_UNSOL_PTT_NOTIFICATION_DIAL: return "UNSOL_PTT_NOTIFICATION_DIAL";
 	case RIL_UNSOL_PTT_CURRENT_GROUP_ACTIVE_LIST: return "UNSOL_PTT_CURRENT_GROUP_ACTIVE_LIST";
 	/* end add */

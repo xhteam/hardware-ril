@@ -4090,13 +4090,13 @@ typedef struct {
 
 
 /**
- * RIL_UNSOL_PTT_QUERY_AVAILABLE_GROUP 
+ * RIL_UNSOL_PTT_AVAILABLE_GROUP_CHANGED 
  *
  * Report Group list need update.
  *
  * "data" is "PttGroups"
  */
-#define RIL_UNSOL_PTT_QUERY_AVAILABLE_GROUP (FERRIS_UNSOL_BASE + 8)
+#define RIL_UNSOL_PTT_AVAILABLE_GROUP_CHANGED (FERRIS_UNSOL_BASE + 8)
 
 
 
