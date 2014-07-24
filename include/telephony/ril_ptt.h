@@ -35,6 +35,11 @@
 extern "C" {
 #endif
 
+struct PttEmergencyInfo{
+  int type;
+  int pid;//for group call ,it's group id,for p2p call,it's callee id
+};
+
 typedef struct PttGroupInfo{
   int gid;
   int gpriority;
@@ -66,75 +71,19 @@ enum PttState{
 
 /* added by ferri,s Jul6, 2014 */
 enum PttCallStatus{
-	ePttCallStatusProgessing,       /* Normal voice call */
+	ePttCallStatusProgressing,       /* Normal voice call */
 	ePttCallStatusQueued,           /* Not used in V2.2.0 */
 	ePttCallStatusCalledPartyPaged, /* Group voice call */
 	ePttCallStatusContinue,         /* Not used in V2.2.0 */
 	ePttCallStatusHangTimeExpired,  /* Not used in V2.2.0 */
+	ePttCallStatusIncoming,
 };
 
 struct ActionCauses {
 	const int err;
 	const char *cause;
-}action_cause[] = { 
-	/* common cuases */
-	{0   , "ok"},
-	{31  , "network timeout"},
-	{1001, "network error"},
-	{1002, "unsigned number error"},
-	{1003, "user authentication failed"},
-	{1004, "service option not supported"},
-	{1005, "requested service option not subscribed"},
-	{1006, "unspecified error"},
-	{1007, "invalid parameter"},
-	{1008, "network detach"},
-	{1009, "high priority task interrupt"},
-	{1010, "NAS Inner Error"},
-	{1011, "IMSI is temporarily blocked"},
-	{1012, "IMSI is permanently blocked"},
-	{1013, "User Low Priority"},
-	{1014, "No PTT Capability"},
-	/* ptt causes */
-	{1100, "Operation Success"},
-	{1101, "group owner close"},
-	{1102, "dispatcher close"},
-	{1103, "timeout close"},
-	{1104, "speaker token timeout"},
-	{1105, "release for high priority user"},
-	{1106, "queue timeout"},
-	{1107, "force to cancel queue"},
-	{1108, "requested group not subscribed"},
-	{1109, "queue buffer is full"},
-	{1110, "not group owner"},
-	{1111, "user interrupt"},
-	{1112, "Set Failure"},
-	{1113, "Out of Service"},
-	{1114, "Normal Release"},
-	/* ptp causes */
-	{1201, "Normal Call Clearing"},
-	{1202, "User Busy"},
-	{1203, "No User Responding"},
-	{1204, "User Alerting No Answer"},
-	{1205, "Call Rejected"},
-	{1206, "Invalid Number Format"},
-	{1207, "User In High Priority Task"},
-	{1208, "Caller Permission Denied"},
-	{1209, "Callee Permission Denied"},
 };
 
-#define MAX_BLOCK_INDICATOR 8
-
-const char *BlockedIndicator[] = {
-/* 0 */	"IMSI & IMEI both Remote ON",
-/* 1 */	"IMSI temporarily Remote OFF, IMEI Remote ON",
-/* 2 */	"IMSI permanently Remote OFF, IMEI Remote ON",
-/* 3 */	"IMSI Remote ON, IMEI temporarily Remote OFF",
-/* 4 */	"IMSI Remote ON, IMEI permanently Remote OFF",
-/* 5 */	"IMSI temporarily Remote OFF, IMEI permanently Remote OFF",
-/* 6 */ "IMSI permanently Remote OFF, IMEI temporarily Remote OFF",
-/* 7 */ "IMSI & IMEI both temporarily Remote OFF",
-/* 8 */ "IMSI &	IMEI both permanently Remote OFF",
-};
 
 /* end added */
 
