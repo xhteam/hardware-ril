@@ -4126,7 +4126,11 @@ typedef struct {
 
 
 /**
- * RIL_UNSOL_PTT_DEVICE_INFO, useless in any biz procedure
+ * RIL_UNSOL_PTT_DEVICE_INFO, 
+ * "response" is
+ * ((const int *)data)[0] is Ptt_voice (1: supported; 0: unsupported)
+ * ((const int *)data)[1] is Ptt_sms   (same as above)
+ * ((const int *)data)[2] is Ptt_pv    (same as above)
  */
 #define RIL_UNSOL_PTT_DEVICE_INFO (FERRIS_UNSOL_BASE + 11)
 
@@ -4134,14 +4138,18 @@ typedef struct {
 
 /**
  * RIL_UNSOL_PTT_GROUP_OWNER
+ * "response" is
+ * ((const int *)data)[0] is owner flag (1:owner,0:not owner)
+ * ((const int *)data)[1] is groupid
  *
  */
 #define RIL_UNSOL_PTT_GROUP_OWNER (FERRIS_UNSOL_BASE + 12)
 
 /**
  * RIL_UNSOL_PTT_TRUNKING_MODE
+ * "response" is
+ * ((const int *)data)[0] is trunking mode flag (0:not turnking mode,1:enter trunking mode)
  *
- * Extended AT command. 
  */
 #define RIL_UNSOL_PTT_TRUNKING_MODE (FERRIS_UNSOL_BASE + 13)
 
@@ -4150,7 +4158,7 @@ typedef struct {
 /**
  * RIL_UNSOL_PTT_NOTIFICATION_JOIN_GROUP
  *
- * Extended AT command. 
+ * ((const int *)data)[0] is groupid required to join
  *
  */
 #define RIL_UNSOL_PTT_NOTIFICATION_JOIN_GROUP (FERRIS_UNSOL_BASE + 14)
@@ -4158,7 +4166,7 @@ typedef struct {
 /**
  * RIL_UNSOL_PTT_BIZ_INFO
  *
- * Report PTT Business State.
+ * "response" is of type const PttInfo
  *
  */
 #define RIL_UNSOL_PTT_BIZ_INFO (FERRIS_UNSOL_BASE + 15)
