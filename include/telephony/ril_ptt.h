@@ -76,7 +76,7 @@ enum PttCallStatus{
 	ePttCallStatusCalledPartyPaged, /* Group voice call */
 	ePttCallStatusContinue,         /* Not used in V2.2.0 */
 	ePttCallStatusHangTimeExpired,  /* Not used in V2.2.0 */
-	ePttCallStatusIncoming,
+	ePttCallStatusIncoming=99,
 };
 
 struct ActionCauses {
@@ -84,6 +84,35 @@ struct ActionCauses {
 	const char *cause;
 };
 
+typedef struct PttInfo{
+  int pttstate;
+  
+  //group info
+  int givalid; //this value means how many following items is valid,it's bit mapping,e.g. 0x01 means gid is valid,
+  #define PTT_BIZSTATE_GID_VALID 0x01
+  #define PTT_BIZSTATE_GPRIORITY_VALID 0x02
+  #define PTT_BIZSTATE_GDEMANDIND_VALID 0x04
+  #define PTT_BIZSTATE_GGRANTSTATUS_VALID 0x08
+  #define PTT_BIZSTATE_GSPKNUM_VALID 0x10
+  #define PTT_BIZSTATE_GSPKNAME_VALID 0x20
+  #define PTT_BIZSTATE_GOWNERIND_VALID 0x40
+  int gid;
+  int gpriority;
+  int gdemandindicator;
+  int ggrantstatus;
+  char* gspeakernum;
+  char* gspeakername;
+  int gownerindicator;
+
+  //personal call info
+  int civalid; //this value means how many following items is valid,it's bit mapping
+  #define PTT_BIZSTATE_CIPRIORITY_VALID 0x01
+  #define PTT_BIZSTATE_CICALLEEID_VALID 0x02
+  #define PTT_BIZSTATE_CICALLERID_VALID 0x04
+  int cpriority;
+  char* ccalleeid;
+  char* ccallerid;  
+}PttInfo;
 
 /* end added */
 

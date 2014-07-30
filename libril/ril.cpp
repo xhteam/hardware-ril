@@ -234,11 +234,12 @@ static int responseCallRing(Parcel &p, void *response, size_t responselen);
 static int responseCdmaSignalInfoRecord(Parcel &p,void *response, size_t responselen);
 static int responseCdmaCallWaiting(Parcel &p,void *response, size_t responselen);
 static int responseSimRefresh(Parcel &p, void *response, size_t responselen);
-
+static int responseGroupList(Parcel &p, void *response, size_t responselen);
+static int responsePttBizState(Parcel &p, void *response, size_t responselen);
 static int decodeVoiceRadioTechnology (RIL_RadioState radioState);
 static int decodeCdmaSubscriptionSource (RIL_RadioState radioState);
 static RIL_RadioState processRadioState(RIL_RadioState newRadioState);
-static int responseGroupList(Parcel &p, void *response, size_t responselen);
+
 
 extern "C" const char * requestToString(int request);
 extern "C" const char * failCauseToString(RIL_Errno);
@@ -2390,6 +2391,40 @@ static int responseGroupList(Parcel &p, void *response, size_t responselen)
 		p.writeInt32(pgs->ginfo[i].gstate);
 		writeStringToParcel(p,pgs->ginfo[i].gname);
 	}
+    return 0;
+}
+static int responsePttBizState(Parcel &p, void *response, size_t responselen)
+{
+    PttInfo* pbs = (PttInfo*)response;	
+    int valid;
+    p.writeInt32(pbs->pttstate);
+    //write group info
+    p.writeInt32(pbs->givalid);
+    valid = pbs->givalid;    
+    if(valid&PTT_BIZSTATE_GID_VALID)
+       p.writeInt32(pbs->gid);
+    if(valid&PTT_BIZSTATE_GPRIORITY_VALID)
+       p.writeInt32(pbs->gpriority);
+    if(valid&PTT_BIZSTATE_GDEMANDIND_VALID)
+       p.writeInt32(pbs->gdemandindicator);
+    if(valid&PTT_BIZSTATE_GGRANTSTATUS_VALID)
+       p.writeInt32(pbs->ggrantstatus);
+    if(valid&PTT_BIZSTATE_GSPKNUM_VALID)
+       writeStringToParcel(p,pbs->gspeakernum);
+    if(valid&PTT_BIZSTATE_GSPKNAME_VALID)
+       writeStringToParcel(p,pbs->gspeakername); 
+    if(valid&PTT_BIZSTATE_GOWNERIND_VALID)
+       p.writeInt32(pbs->gownerindicator);
+    //write personal call info
+
+    p.writeInt32(pbs->civalid);
+    valid = pbs->civalid;    
+    if(valid&PTT_BIZSTATE_CIPRIORITY_VALID)
+       p.writeInt32(pbs->cpriority);
+    if(valid&PTT_BIZSTATE_CICALLEEID_VALID)
+       writeStringToParcel(p,pbs->ccalleeid); 
+    if(valid&PTT_BIZSTATE_CICALLERID_VALID)
+       writeStringToParcel(p,pbs->ccallerid);
     return 0;
 }
 

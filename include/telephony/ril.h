@@ -3480,10 +3480,7 @@ typedef struct {
  *
  * "data" is NULL
  *
- * "response" 
- * ((const char **)data)[0] is Ptt_state(0: un-registed; 1: registed)
- * ((const char **)data)[1] is [group_info](optional)
- * ((const char **)data)[2] is [person call info](optional)
+ * "response" is of type const PttInfo
  *
  *
  * Valid errors:

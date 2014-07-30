@@ -132,7 +132,7 @@
     {RIL_REQUEST_PTT_CURRENT_GROUP_SCANLIST_UPDATE, dispatchInts, responseVoid},
     {RIL_REQUEST_PTT_QUERY_BLOCKED_INDICATOR, dispatchInts, responseVoid},
     {RIL_REQUEST_PTT_DEVICE_INFO, dispatchVoid, responseInts},
-    {RIL_REQUEST_PTT_QUERY_BIZ_STATE, dispatchVoid, responseInts},
+    {RIL_REQUEST_PTT_QUERY_BIZ_STATE, dispatchVoid, responsePttBizState},
     /* end add */
     {RIL_REQUEST_PTT_DEBUG, dispatchStrings, responseVoid},
     {RIL_REQUEST_RIL_DEBUG, dispatchStrings, responseString},
