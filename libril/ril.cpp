@@ -2381,9 +2381,12 @@ static int responseGroupList(Parcel &p, void *response, size_t responselen)
 {
 	PttGroups* pgs = (PttGroups*)response;
 	int group_num = pgs->groups_number+pgs->dyn_groups_number;
-    p.writeInt32(pgs->groups_number);
-    p.writeInt32(pgs->dyn_groups_number);
+    	p.writeInt32(pgs->groups_number);
+    	p.writeInt32(pgs->dyn_groups_number);
+	p.writeInt32(pgs->emerginfo.type);
+	p.writeInt32(pgs->emerginfo.number);
 	writeStringToParcel(p,pgs->tun);
+	
 	int i;
 	for(i=0;i<group_num;i++){
 		p.writeInt32(pgs->ginfo[i].gid);

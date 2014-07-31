@@ -35,10 +35,10 @@
 extern "C" {
 #endif
 
-struct PttEmergencyInfo{
+typedef struct PttEmergencyInfo{
   int type;
-  int pid;//for group call ,it's group id,for p2p call,it's callee id
-};
+  int number;//for group call ,it's group id,for p2p call,it's callee id
+}PttEmergencyInfo;
 
 typedef struct PttGroupInfo{
   int gid;
@@ -51,6 +51,7 @@ typedef struct PttGroups{
 	  int groups_number;
 	  int dyn_groups_number;
 	  char* tun;
+	  PttEmergencyInfo emerginfo;
 	  PttGroupInfo* ginfo;
 }PttGroups;
 
